@@ -1,0 +1,560 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-01-01T12:00:00.000Z",
+  "__export_source": "insomnia.desktop.app",
+  "resources": [
+    {
+      "_id": "wrk_licitacoes_simples",
+      "parentId": null,
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "name": "Obras&Blockchain",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "env_base",
+      "parentId": "wrk_licitacoes_simples",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:3000/api",
+        "token_governo": "",
+        "token_empresa": "",
+        "token_cidadao": "",
+        "licitacao_id": "",
+        "proposta_id": "",
+        "documento_id": "",
+        "hash_blockchain": ""
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1704067200000,
+      "_type": "environment"
+    },
+    {
+      "_id": "jar_cookies",
+      "parentId": "wrk_licitacoes_simples",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "name": "Default Jar",
+      "cookies": [],
+      "_type": "cookie_jar"
+    },
+    {
+      "_id": "fld_auth",
+      "parentId": "wrk_licitacoes_simples",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "name": "01 - Autenticação",
+      "description": "Registro e login de usuários",
+      "environment": {},
+      "metaSortKey": -1000000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_register_governo",
+      "parentId": "fld_auth",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/auth/register",
+      "name": "Registrar Governo",
+      "description": "Criar usuário governamental",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"usuario\": \"prefeitura_demo\",\n  \"email\": \"licitacoes@prefeitura.gov.br\",\n  \"senha\": \"123456789\",\n  \"tipo_usuario\": \"governo\"\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "_type": "request"
+    },
+    {
+      "_id": "req_register_empresa",
+      "parentId": "fld_auth",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/auth/register",
+      "name": "Registrar Empresa",
+      "description": "Criar empresa participante",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"usuario\": \"empresa_demo\",\n  \"email\": \"contato@empresa.com.br\",\n  \"senha\": \"123456789\",\n  \"tipo_usuario\": \"empresa\",\n  \"empresa\": {\n    \"cnpj\": \"12.345.678/0001-90\",\n    \"razao_social\": \"Empresa Demo LTDA\",\n    \"telefone\": \"(11) 99999-9999\",\n    \"endereco\": \"Rua das Empresas, 100\"\n  }\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "_type": "request"
+    },
+    {
+      "_id": "req_register_cidadao",
+      "parentId": "fld_auth",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/auth/register",
+      "name": "Registrar Cidadão",
+      "description": "Criar usuário cidadão",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"usuario\": \"cidadao_demo\",\n  \"email\": \"cidadao@email.com\",\n  \"senha\": \"123456789\",\n  \"tipo_usuario\": \"cidadao\"\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "_type": "request"
+    },
+    {
+      "_id": "req_login_governo",
+      "parentId": "fld_auth",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/auth/login",
+      "name": "Login Governo",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"usuario\": \"prefeitura_demo\",\n  \"senha\": \"123456789\"\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "_type": "request"
+    },
+    {
+      "_id": "req_login_empresa",
+      "parentId": "fld_auth",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/auth/login",
+      "name": "Login Empresa",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"usuario\": \"empresa_demo\",\n  \"senha\": \"123456789\"\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "_type": "request"
+    },
+    {
+      "_id": "req_login_cidadao",
+      "parentId": "fld_auth",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/auth/login",
+      "name": "Login Cidadão",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"usuario\": \"cidadao_demo\",\n  \"senha\": \"123456789\"\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "_type": "request"
+    },
+    {
+      "_id": "fld_governo",
+      "parentId": "wrk_licitacoes_simples",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "name": "02 - Governo (Criar/Gerenciar)",
+      "description": "Funcionalidades do usuário governo",
+      "metaSortKey": -900000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_dashboard_governo",
+      "parentId": "fld_governo",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/dashboard",
+      "name": "Dashboard Governo",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token_governo }}" }],
+      "_type": "request"
+    },
+    {
+      "_id": "req_criar_licitacao",
+      "parentId": "fld_governo",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/licitacoes/create",
+      "name": "Criar Licitação",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"titulo\": \"Construção de Escola Municipal\",\n  \"descricao\": \"Licitação para construção de escola com 10 salas de aula e biblioteca\",\n  \"objeto_licitacao\": \"Obra de construção civil educacional\",\n  \"modalidade\": \"concorrencia\",\n  \"valor_estimado\": 2500000,\n  \"data_abertura\": \"2025-02-15T09:00:00.000Z\",\n  \"data_fechamento\": \"2025-03-15T17:00:00.000Z\",\n  \"requisitos_tecnicos\": \"Experiência mínima de 5 anos em obras públicas\",\n  \"criterio_julgamento\": \"menor_preco\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.token_governo }}" }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_listar_licitacoes_governo",
+      "parentId": "fld_governo",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/licitacoes/list",
+      "name": "Minhas Licitações",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token_governo }}" }],
+      "_type": "request"
+    },
+    {
+      "_id": "req_publicar_licitacao",
+      "parentId": "fld_governo",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/licitacoes/publish/{{ _.licitacao_id }}",
+      "name": "Publicar Licitação",
+      "method": "POST",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token_governo }}" }],
+      "_type": "request"
+    },
+    {
+      "_id": "req_ver_propostas",
+      "parentId": "fld_governo",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/propostas/licitacao/{{ _.licitacao_id }}",
+      "name": "Ver Propostas Recebidas",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token_governo }}" }],
+      "_type": "request"
+    },
+    {
+      "_id": "req_avaliar_proposta",
+      "parentId": "fld_governo",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/propostas/avaliar/{{ _.proposta_id }}",
+      "name": "Avaliar Proposta",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"vencedora\",\n  \"observacoes\": \"Proposta atende todos os requisitos com melhor preço\",\n  \"pontuacao\": 95\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.token_governo }}" }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "fld_empresa",
+      "parentId": "wrk_licitacoes_simples",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "name": "03 - Empresa (Participar)",
+      "description": "Funcionalidades da empresa",
+      "metaSortKey": -800000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_dashboard_empresa",
+      "parentId": "fld_empresa",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/dashboard",
+      "name": "Dashboard Empresa",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token_empresa }}" }],
+      "_type": "request"
+    },
+    {
+      "_id": "req_listar_editais_abertos",
+      "parentId": "fld_empresa",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/licitacoes/list?status=publicado",
+      "name": "Ver Editais Disponíveis",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token_empresa }}" }],
+      "_type": "request"
+    },
+    {
+      "_id": "req_enviar_proposta",
+      "parentId": "fld_empresa",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/propostas/enviar",
+      "name": "Enviar Proposta",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"licitacao_id\": \"{{ _.licitacao_id }}\",\n  \"valor_proposta\": 2350000,\n  \"prazo_execucao\": 365,\n  \"descricao_proposta\": \"Proposta técnica completa seguindo todas as especificações do edital. Utilizaremos materiais de alta qualidade e equipe especializada.\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.token_empresa }}" }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_minhas_propostas",
+      "parentId": "fld_empresa",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/propostas/minhas",
+      "name": "Minhas Propostas",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token_empresa }}" }],
+      "_type": "request"
+    },
+    {
+      "_id": "fld_cidadao",
+      "parentId": "wrk_licitacoes_simples",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "name": "04 - Cidadão (Transparência)",
+      "description": "Consultas públicas para fiscalização",
+      "metaSortKey": -700000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_transparencia",
+      "parentId": "fld_cidadao",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/transparencia",
+      "name": "Dados de Transparência",
+      "description": "Estatísticas públicas do sistema",
+      "method": "GET",
+      "_type": "request"
+    },
+    {
+      "_id": "req_licitacoes_publicas",
+      "parentId": "fld_cidadao",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/licitacoes/list",
+      "name": "Ver Licitações Públicas",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token_cidadao }}" }],
+      "_type": "request"
+    },
+    {
+      "_id": "req_detalhes_licitacao",
+      "parentId": "fld_cidadao",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/licitacao/{{ _.licitacao_id }}/detalhes",
+      "name": "Detalhes da Licitação",
+      "description": "Ver detalhes completos incluindo propostas (se finalizada)",
+      "method": "GET",
+      "_type": "request"
+    },
+    {
+      "_id": "fld_documentos",
+      "parentId": "wrk_licitacoes_simples",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "name": "05 - Documentos",
+      "description": "Upload e verificação de arquivos",
+      "metaSortKey": -600000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_upload_documento",
+      "parentId": "fld_documentos",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/documentos/upload",
+      "name": "Upload de Documento",
+      "method": "POST",
+      "body": {
+        "mimeType": "multipart/form-data",
+        "params": [
+          { "name": "arquivo", "type": "file", "fileName": "" },
+          { "name": "tipo_documento", "value": "edital", "type": "text" },
+          { "name": "referencia_id", "value": "{{ _.licitacao_id }}", "type": "text" },
+          { "name": "publico", "value": "true", "type": "text" }
+        ]
+      },
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token_governo }}" }],
+      "_type": "request"
+    },
+    {
+      "_id": "req_listar_documentos",
+      "parentId": "fld_documentos",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/documentos/list",
+      "name": "Listar Documentos",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token_governo }}" }],
+      "_type": "request"
+    },
+    {
+      "_id": "fld_blockchain",
+      "parentId": "wrk_licitacoes_simples",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "name": "06 - Blockchain",
+      "description": "Verificação e auditoria",
+      "metaSortKey": -500000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_verificar_transacao",
+      "parentId": "fld_blockchain",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/blockchain/verificar",
+      "name": "Verificar Transação",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"hash\": \"{{ _.hash_blockchain }}\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.token_governo }}" }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_historico_entidade",
+      "parentId": "fld_blockchain",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/blockchain/historico/{{ _.licitacao_id }}",
+      "name": "Histórico da Entidade",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token_governo }}" }],
+      "_type": "request"
+    },
+    {
+      "_id": "fld_fluxo",
+      "parentId": "wrk_licitacoes_simples",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "name": "07 - Fluxo Completo (Teste)",
+      "description": "Sequência de testes do fluxo principal",
+      "metaSortKey": -400000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_fluxo_1",
+      "parentId": "fld_fluxo",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/auth/register",
+      "name": " Criar Governo",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"usuario\": \"gov_fluxo\",\n  \"email\": \"fluxo@governo.br\",\n  \"senha\": \"123456789\",\n  \"tipo_usuario\": \"governo\"\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "_type": "request"
+    },
+    {
+      "_id": "req_fluxo_2",
+      "parentId": "fld_fluxo",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/auth/register",
+      "name": " Criar Empresa",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"usuario\": \"emp_fluxo\",\n  \"email\": \"fluxo@empresa.com\",\n  \"senha\": \"123456789\",\n  \"tipo_usuario\": \"empresa\",\n  \"empresa\": {\n    \"cnpj\": \"11.111.111/0001-11\",\n    \"razao_social\": \"Empresa Fluxo LTDA\"\n  }\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "_type": "request"
+    },
+    {
+      "_id": "req_fluxo_3",
+      "parentId": "fld_fluxo",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/auth/login",
+      "name": " Login Governo",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"usuario\": \"gov_fluxo\",\n  \"senha\": \"123456789\"\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "_type": "request"
+    },
+    {
+      "_id": "req_fluxo_4",
+      "parentId": "fld_fluxo",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/licitacoes/create",
+      "name": " Criar Licitação",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"titulo\": \"Obra Teste Fluxo\",\n  \"descricao\": \"Teste do fluxo completo\",\n  \"objeto_licitacao\": \"Construção\",\n  \"modalidade\": \"pregao\",\n  \"valor_estimado\": 100000,\n  \"data_abertura\": \"2025-02-01T10:00:00.000Z\",\n  \"data_fechamento\": \"2025-03-01T17:00:00.000Z\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.token_governo }}" }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_fluxo_5",
+      "parentId": "fld_fluxo",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/licitacoes/publish/{{ _.licitacao_id }}",
+      "name": " Publicar Licitação",
+      "method": "POST",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token_governo }}" }],
+      "_type": "request"
+    },
+    {
+      "_id": "req_fluxo_6",
+      "parentId": "fld_fluxo",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/auth/login",
+      "name": " Login Empresa",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"usuario\": \"emp_fluxo\",\n  \"senha\": \"123456789\"\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "_type": "request"
+    },
+    {
+      "_id": "req_fluxo_7",
+      "parentId": "fld_fluxo",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/propostas/enviar",
+      "name": " Enviar Proposta",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"licitacao_id\": \"{{ _.licitacao_id }}\",\n  \"valor_proposta\": 95000,\n  \"prazo_execucao\": 180,\n  \"descricao_proposta\": \"Proposta teste do fluxo\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.token_empresa }}" }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_fluxo_8",
+      "parentId": "fld_fluxo",
+      "modified": 1704067200000,
+      "created": 1704067200000,
+      "url": "{{ _.base_url }}/propostas/avaliar/{{ _.proposta_id }}",
+      "name": " Avaliar Proposta",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"vencedora\",\n  \"observacoes\": \"Melhor proposta\",\n  \"pontuacao\": 100\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.token_governo }}" }
+      ],
+      "_type": "request"
+    }
+  ]
+}

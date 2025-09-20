@@ -1,0 +1,1013 @@
+openapi: 3.0.3
+info:
+  title: Obras&Blockchain
+  description: |
+    Fluxo Principal:
+    1. Governo - Cria e publica licitações
+    2. Empresa - Participa envia propostas  
+    3. Cidadão - Pode consultar licitações promovendo transparência
+
+    Recursos:
+    - JWT
+    - Blockchain
+    - Upload de documentos
+    - Dashboard
+  version: "1.0.0"
+  contact:
+    email: obraseblockchain@gmail.com
+    
+servers:
+  - url: http://localhost:3000/api
+
+tags:
+  - name: Autenticação
+    description: Registro e login de usuários
+  - name: Governo
+    description: Funcionalidades exclusivas do governo
+  - name: Empresa
+    description: Funcionalidades para empresas 
+  - name: Cidadão
+    description: Consultas públicas
+  - name: Documentos
+    description: Upload e verificação de arquivos
+  - name: Blockchain
+    description: Auditoria Blockchain
+  - name: Dashboard
+    description: Painéis personalizados
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Usuario:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID do usuário
+        usuario:
+          type: string
+          description: Nome de usuário único
+        email:
+          type: string
+          format: email
+          description: Email único do usuário
+        tipo_usuario:
+          type: string
+          enum: [cidadao, empresa, governo]
+          description: Tipo de usuário no sistema
+        empresa:
+          $ref: '#/components/schemas/DadosEmpresa'
+        ativo:
+          type: boolean
+          default: true
+        data_cadastro:
+          type: string
+          format: date-time
+        hash_blockchain:
+          type: string
+          description: Hash da transação de cadastro na blockchain
+
+    DadosEmpresa:
+      type: object
+      properties:
+        cnpj:
+          type: string
+          description: CNPJ da empresa
+        razao_social:
+          type: string
+          description: Razão social da empresa
+        telefone:
+          type: string
+          description: Telefone de contato
+        endereco:
+          type: string
+          description: Endereço da empresa
+
+    Licitacao:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID único da licitação
+        numero_edital:
+          type: string
+          description: Número do edital (formato: 001/2025)
+        titulo:
+          type: string
+          description: Título da licitação
+        descricao:
+          type: string
+          description: Descrição detalhada
+        objeto_licitacao:
+          type: string
+          description: Objeto da licitação
+        modalidade:
+          type: string
+          enum: [pregao, concorrencia, tomada_preco, convite]
+          description: Modalidade da licitação
+        valor_estimado:
+          type: number
+          description: Valor estimado em reais
+        data_abertura:
+          type: string
+          format: date-time
+          description: Data de abertura da licitação
+        data_fechamento:
+          type: string
+          format: date-time
+          description: Data de fechamento para propostas
+        requisitos_tecnicos:
+          type: string
+          description: Requisitos técnicos necessários
+        criterio_julgamento:
+          type: string
+          enum: [menor_preco, melhor_tecnica, tecnica_preco]
+          default: menor_preco
+        orgao_id:
+          type: string
+          description: ID do órgão responsável
+        status:
+          type: string
+          enum: [rascunho, publicado, aberto, em_analise, finalizado, cancelado]
+          default: rascunho
+        hash_blockchain:
+          type: string
+          description: Hash da blockchain
+        data_criacao:
+          type: string
+          format: date-time
+        data_atualizacao:
+          type: string
+          format: date-time
+
+    Proposta:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID da proposta
+        licitacao_id:
+          type: string
+          description: ID da licitação
+        empresa_id:
+          type: string
+          description: ID da empresa
+        valor_proposta:
+          type: number
+          description: Valor proposto em reais
+        prazo_execucao:
+          type: integer
+          description: Prazo de execução em dias
+        descricao_proposta:
+          type: string
+          description: Descrição técnica da proposta
+        status:
+          type: string
+          enum: [enviada, em_analise, classificada, vencedora, desclassificada]
+          default: enviada
+        resultado_analise:
+          $ref: '#/components/schemas/ResultadoAnalise'
+        hash_blockchain:
+          type: string
+          description: Hash do blockchain
+        data_envio:
+          type: string
+          format: date-time
+
+    ResultadoAnalise:
+      type: object
+      properties:
+        observacoes:
+          type: string
+          description: Observações
+        pontuacao:
+          type: number
+          description: Pontuação atribuída
+        data_avaliacao:
+          type: string
+          format: date-time
+
+    Documento:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID do documento
+        tipo_documento:
+          type: string
+          enum: [edital, proposta, anexo]
+        referencia_id:
+          type: string
+          description: ID da entidade relacionada
+        nome_arquivo:
+          type: string
+          description: Nome do arquivo no sistema
+        nome_original:
+          type: string
+          description: Nome original do arquivo
+        hash_arquivo:
+          type: string
+          description: Hash SHA256 do arquivo
+        hash_blockchain:
+          type: string
+          description: Hash do blockchain
+        publico:
+          type: boolean
+          default: true
+        data_upload:
+          type: string
+          format: date-time
+
+    TransacaoBlockchain:
+      type: object
+      properties:
+        id_transacao:
+          type: string
+          description: ID da transação
+        tipo:
+          type: string
+          description: Tipo da transação
+        usuario_id:
+          type: string
+          description: ID do usuário
+        dados:
+          type: object
+          description: Dados da transação
+        hash:
+          type: string
+          description: Hash SHA256 da transação
+        timestamp:
+          type: integer
+          description: Timestamp da transação
+        confirmado:
+          type: boolean
+          default: true
+
+    ResponseSuccess:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operação realizada com sucesso"
+        data:
+          type: object
+
+    ResponseError:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Erro na operação"
+        errors:
+          type: array
+          items:
+            type: string
+paths:
+
+  # AUTENTICAÇÃO
+  /auth/register:
+    post:
+      tags: [Autenticação]
+      summary: Registrar novo usuário
+      description: Cria um novo usuário no sistema (governo, empresa ou cidadão)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [usuario, email, senha, tipo_usuario]
+              properties:
+                usuario:
+                  type: string
+                  minLength: 3
+                  example: "prefeitura_demo"
+                email:
+                  type: string
+                  format: email
+                  example: "licitacoes@prefeitura.gov.br"
+                senha:
+                  type: string
+                  minLength: 6
+                  example: "123456789"
+                tipo_usuario:
+                  type: string
+                  enum: [cidadao, empresa, governo]
+                  example: "governo"
+                empresa:
+                  $ref: '#/components/schemas/DadosEmpresa'
+            examples:
+              governo:
+                summary: Usuário Governo
+                value:
+                  usuario: "prefeitura_demo"
+                  email: "licitacoes@prefeitura.gov.br"
+                  senha: "123456789"
+                  tipo_usuario: "governo"
+              empresa:
+                summary: Usuário Empresa
+                value:
+                  usuario: "empresa_demo"
+                  email: "contato@empresa.com.br"
+                  senha: "123456789"
+                  tipo_usuario: "empresa"
+                  empresa:
+                    cnpj: "12.345.678/0001-90"
+                    razao_social: "Empresa Demo LTDA"
+                    telefone: "(11) 99999-9999"
+                    endereco: "Rua das Empresas, 100"
+              cidadao:
+                summary: Usuário Cidadão
+                value:
+                  usuario: "cidadao_demo"
+                  email: "cidadao@email.com"
+                  senha: "123456789"
+                  tipo_usuario: "cidadao"
+      responses:
+        '201':
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          hash_blockchain:
+                            type: string
+        '400':
+          description: Dados inválidos ou usuário já existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+
+  /auth/login:
+    post:
+      tags: [Autenticação]
+      summary: Fazer login
+      description: Autentica usuário e retorna token JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [usuario, senha]
+              properties:
+                usuario:
+                  type: string
+                  description: Nome de usuário ou email
+                  example: "prefeitura_demo"
+                senha:
+                  type: string
+                  example: "123456789"
+      responses:
+        '200':
+          description: Login realizado com sucesso
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          token:
+                            type: string
+                            description: Token JWT para autenticação
+                          user:
+                            $ref: '#/components/schemas/Usuario'
+        '401':
+          description: Credenciais inválidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+
+  # LICITAÇÕES
+  /licitacoes/create:
+    post:
+      tags: [Governo]
+      summary: Criar nova licitação
+      description: Cria uma nova licitação (apenas usuários governo)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [titulo, descricao, objeto_licitacao, modalidade, valor_estimado, data_abertura, data_fechamento]
+              properties:
+                titulo:
+                  type: string
+                  example: "Construção de Escola Municipal"
+                descricao:
+                  type: string
+                  example: "Licitação para construção de escola com 10 salas de aula e biblioteca"
+                objeto_licitacao:
+                  type: string
+                  example: "Obra de construção civil educacional"
+                modalidade:
+                  type: string
+                  enum: [pregao, concorrencia, tomada_preco, convite]
+                  example: "concorrencia"
+                valor_estimado:
+                  type: number
+                  example: 2500000
+                data_abertura:
+                  type: string
+                  format: date-time
+                  example: "2025-02-15T09:00:00.000Z"
+                data_fechamento:
+                  type: string
+                  format: date-time
+                  example: "2025-03-15T17:00:00.000Z"
+                requisitos_tecnicos:
+                  type: string
+                  example: "Experiência mínima de 5 anos em obras públicas"
+                criterio_julgamento:
+                  type: string
+                  enum: [menor_preco, melhor_tecnica, tecnica_preco]
+                  default: menor_preco
+      responses:
+        '201':
+          description: Licitação criada com sucesso
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          numero_edital:
+                            type: string
+                          hash_blockchain:
+                            type: string
+        '403':
+          description: Acesso restrito a usuários governamentais
+
+  /licitacoes/list:
+    get:
+      tags: [Governo, Empresa, Cidadão]
+      summary: Listar licitações
+      description: Lista licitações conforme permissões do usuário
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: Filtrar por status
+          schema:
+            type: string
+            enum: [rascunho, publicado, aberto, em_analise, finalizado, cancelado]
+        - name: limit
+          in: query
+          description: Limite de resultados
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          description: Offset para paginação
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Lista de licitações
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          licitacoes:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Licitacao'
+                          total:
+                            type: integer
+                          limit:
+                            type: integer
+                          offset:
+                            type: integer
+
+  /licitacoes/publish/{id}:
+    post:
+      tags: [Governo]
+      summary: Publicar licitação
+      description: Publica uma licitação em rascunho
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID da licitação
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Licitação publicada com sucesso
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          status:
+                            type: string
+                            example: "publicado"
+                          hash_blockchain:
+                            type: string
+        '404':
+          description: Licitação não encontrada
+        '400':
+          description: Apenas licitações em rascunho podem ser publicadas
+
+  # PROPOSTAS
+  /propostas/enviar:
+    post:
+      tags: [Empresa]
+      summary: Enviar proposta
+      description: Envia proposta para uma licitação (apenas empresas)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [licitacao_id, valor_proposta, prazo_execucao]
+              properties:
+                licitacao_id:
+                  type: string
+                  example: "507f1f77bcf86cd799439011"
+                valor_proposta:
+                  type: number
+                  example: 2350000
+                prazo_execucao:
+                  type: integer
+                  description: Prazo em dias
+                  example: 365
+                descricao_proposta:
+                  type: string
+                  example: "Proposta técnica completa seguindo todas as especificações"
+      responses:
+        '201':
+          description: Proposta enviada com sucesso
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          hash_blockchain:
+                            type: string
+        '400':
+          description: Licitação não disponível ou empresa já enviou proposta
+
+  /propostas/minhas:
+    get:
+      tags: [Empresa]
+      summary: Minhas propostas
+      description: Lista propostas enviadas pela empresa
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de propostas da empresa
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Proposta'
+
+  /propostas/licitacao/{id}:
+    get:
+      tags: [Governo]
+      summary: Propostas por licitação
+      description: Lista propostas recebidas para uma licitação
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID da licitação
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de propostas
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Proposta'
+
+  /propostas/avaliar/{id}:
+    post:
+      tags: [Governo]
+      summary: Avaliar proposta
+      description: Avalia uma proposta recebida
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID da proposta
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [classificada, vencedora, desclassificada]
+                  example: "vencedora"
+                observacoes:
+                  type: string
+                  example: "Proposta atende todos os requisitos com melhor preço"
+                pontuacao:
+                  type: number
+                  example: 95
+      responses:
+        '200':
+          description: Proposta avaliada com sucesso
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          status:
+                            type: string
+                          hash_blockchain:
+                            type: string
+
+  # DOCUMENTOS
+  /documentos/upload:
+    post:
+      tags: [Documentos]
+      summary: Upload de documento
+      description: Faz upload de um documento para o sistema
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [arquivo, tipo_documento]
+              properties:
+                arquivo:
+                  type: string
+                  format: binary
+                  description: Arquivo a ser enviado
+                tipo_documento:
+                  type: string
+                  enum: [edital, proposta, anexo]
+                  example: "edital"
+                referencia_id:
+                  type: string
+                  description: ID da entidade relacionada
+                publico:
+                  type: boolean
+                  default: true
+                  description: Se o documento é público
+      responses:
+        '200':
+          description: Documento enviado com sucesso
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          nome_arquivo:
+                            type: string
+                          hash_blockchain:
+                            type: string
+        '400':
+          description: Tipo de arquivo não permitido
+
+  /documentos/list:
+    get:
+      tags: [Documentos]
+      summary: Listar documentos
+      description: Lista documentos conforme permissões do usuário
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tipo
+          in: query
+          description: Filtrar por tipo de documento
+          schema:
+            type: string
+            enum: [edital, proposta, anexo]
+        - name: referencia_id
+          in: query
+          description: Filtrar por entidade relacionada
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de documentos
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Documento'
+
+  # BLOCKCHAIN
+  /blockchain/verificar:
+    post:
+      tags: [Blockchain]
+      summary: Verificar transação blockchain
+      description: Verifica uma transação na blockchain
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [hash]
+              properties:
+                hash:
+                  type: string
+                  description: Verificando HASH da transação
+                  example: "a1b2c3d4e5f6..."
+      responses:
+        '200':
+          description: Resultado da verificação
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          encontrada:
+                            type: boolean
+                          transacao:
+                            $ref: '#/components/schemas/TransacaoBlockchain'
+                          mensagem:
+                            type: string
+
+  /blockchain/historico/{id}:
+    get:
+      tags: [Blockchain]
+      summary: Histórico de entidade
+      description: Obtém histórico do blockchain de uma entidade
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID da entidade
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Histórico da entidade
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          entidade_id:
+                            type: string
+                          transacoes:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/TransacaoBlockchain'
+
+  # DASHBOARD
+  /dashboard:
+    get:
+      tags: [Dashboard]
+      summary: Dashboard do usuário
+      description: Retorna estatísticas personalizadas por tipo de usuário
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dados do dashboard
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: Estatísticas variáveis conforme tipo de usuário
+                        example:
+                          licitacoes:
+                            total: 15
+                            abertas: 3
+                            finalizadas: 8
+                          propostas:
+                            total: 45
+
+  /transparencia:
+    get:
+      tags: [Cidadão]
+      summary: Dados de transparência
+      description: Estatísticas públicas do sistema para cidadãos
+      responses:
+        '200':
+          description: Dados públicos de transparência
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          licitacoes:
+                            type: object
+                            properties:
+                              total:
+                                type: integer
+                                example: 150
+                              abertas:
+                                type: integer
+                                example: 12
+                              valor_total:
+                                type: number
+                                example: 25000000
+                          empresas_participantes:
+                            type: integer
+                            example: 85
+                          documentos_publicos:
+                            type: integer
+                            example: 320
+                          ultima_atualizacao:
+                            type: string
+                            format: date-time
+
+  /licitacao/{id}/detalhes:
+    get:
+      tags: [Cidadão]
+      summary: Detalhes públicos de licitação
+      description: Visualiza detalhes completos de uma licitação pública
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID da licitação
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detalhes completos da licitação
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseSuccess'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          licitacao:
+                            $ref: '#/components/schemas/Licitacao'
+                          propostas:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Proposta'
+                            description: Só aparece se licitação finalizada
+                          documentos:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Documento'
+                          timeline:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                evento:
+                                  type: string
+                                data:
+                                  type: string
+                                  format: date-time
+        '404':
+          description: Licitação não encontrada ou não pública
+
+# RESPOSTAs DE ERRO
+  /:
+    get:
+      tags: [Sistema]
+      summary: Rota não encontrada
+      description: Qualquer rota não definida retorna 404
+      responses:
+        '404':
+          description: Rota não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+              example:
+                success: false
+                message: "Rota não encontrada"
+
+security:
+  - bearerAuth: []
