@@ -1,5 +1,5 @@
 {
-  "name": "ObraseBlockchain",
+  "name": "licitacoes-blockchain-simples",
   "version": "1.0.0",
   "description": "Sistema de Licitações com Blockchain",
   "main": "index.js",
