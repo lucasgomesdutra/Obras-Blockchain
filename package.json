@@ -1,7 +1,7 @@
 {
-  "name": "licitacoes-blockchain-simples",
+  "name": "ObraseBlockchain",
   "version": "1.0.0",
-  "description": "Sistema Simplificado de Licitações com Blockchain - Focado em Governo, Empresa e Cidadão",
+  "description": "Sistema de Licitações com Blockchain",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
