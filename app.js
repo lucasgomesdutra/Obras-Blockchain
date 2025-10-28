@@ -1,9 +1,11 @@
+// app.js
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
+const { setupSwagger } = require('./swagger-setup');
 
 const app = express();
 
@@ -14,19 +16,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// Pasta pública para acesso aos uploads
+// Pasta pública
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Swagger - ADICIONAR
+setupSwagger(app);
+
 // Rotas principais
-app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/licitacoes', require('./routes/licitacaoRoutes'));
-app.use('/api/propostas', require('./routes/propostaRoutes'));
-app.use('/api/documentos', require('./routes/documentoRoutes'));
-app.use('/api/blockchain', require('./routes/blockchainRoutes'));
-app.use('/api/dashboard', require('./routes/dashboardRoutes'));
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/licitacoes', require('./routes/licitacao'));
+app.use('/api/propostas', require('./routes/proposta'));
+app.use('/api/documentos', require('./routes/documento'));
+app.use('/api/blockchain', require('./routes/blockchain'));
+app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/transparencia', require('./routes/transparencia'));
 
-// Rota raiz (teste rápido)
+// Rota raiz
 app.get('/', (req, res) => {
   res.json({
     success: true,

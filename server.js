@@ -7,7 +7,7 @@ const MONGODB_URI = process.env.MONGODB_URI;
 
 // Conexão com o banco de dados
 mongoose
-  .connect(MONGO_URI)
+  .connect(MONGODB_URI)
   .then(() => {
     console.log('✅ Conectado ao MongoDB com sucesso!');
     app.listen(PORT, () => {
