@@ -1,4 +1,6 @@
 const Licitacao = require('../models/Licitacao');
+const Proposta = require('../models/Proposta');
+const Documento = require('../models/Documento');
 const BlockchainService = require('../services/Blockchain');
 
 class LicitacaoController {
@@ -121,6 +123,58 @@ class LicitacaoController {
       });
     } catch (error) {
       console.error('Erro ao publicar licitação:', error);
+      res.status(500).json({ success: false, message: 'Erro no servidor' });
+    }
+  }
+
+  // NOVA ROTA: Detalhes completos da licitação para cidadãos
+  async detalhes(req, res) {
+    try {
+      const licitacao = await Licitacao.findById(req.params.id)
+        .populate('orgao_id', 'usuario email');
+
+      if (!licitacao)
+        return res.status(404).json({ success: false, message: 'Licitação não encontrada' });
+
+      // Verificar se é pública
+      if (!['publicado', 'aberto', 'em_analise', 'finalizado'].includes(licitacao.status)) {
+        return res.status(403).json({ 
+          success: false, 
+          message: 'Licitação não disponível para consulta pública' 
+        });
+      }
+
+      // Buscar documentos públicos
+      const documentos = await Documento.find({
+        referencia_id: licitacao._id,
+        publico: true
+      }).select('nome_original tipo_documento hash_arquivo data_upload');
+
+      // Buscar propostas (só mostra se finalizada)
+      let propostas = [];
+      if (licitacao.status === 'finalizado') {
+        propostas = await Proposta.find({ licitacao_id: licitacao._id })
+          .populate('empresa_id', 'empresa.razao_social')
+          .select('valor_proposta prazo_execucao status resultado_analise');
+      }
+
+      // Timeline de eventos
+      const timeline = [
+        { evento: 'Criação', data: licitacao.data_criacao },
+        { evento: 'Publicação', data: licitacao.data_atualizacao }
+      ];
+
+      res.json({
+        success: true,
+        data: {
+          licitacao,
+          documentos,
+          propostas,
+          timeline
+        }
+      });
+    } catch (error) {
+      console.error('Erro ao buscar detalhes:', error);
       res.status(500).json({ success: false, message: 'Erro no servidor' });
     }
   }

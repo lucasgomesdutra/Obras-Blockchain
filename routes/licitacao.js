@@ -26,4 +26,7 @@ router.get('/list', authenticateToken, LicitacaoController.list);
 // Publicar licitação (Governo)
 router.post('/publish/:id', authenticateToken, LicitacaoController.publish);
 
+// Detalhes completos da licitação (Público)
+router.get('/:id/detalhes', LicitacaoController.detalhes);
+
 module.exports = router;
