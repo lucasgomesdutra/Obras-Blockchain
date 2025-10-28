@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const BlockchainController = require('../controllers/BlockchainController');
-const { authenticateToken } = require('../middlewares/authMiddleware');
+const BlockchainController = require('../controllers/Blockchain');
+const { authenticateToken } = require('../middlewares/auth');
 const { body } = require('express-validator');
 
 // Validar blockchain

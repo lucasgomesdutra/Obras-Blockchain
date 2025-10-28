@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const PropostaController = require('../controllers/PropostaController');
-const { authenticateToken } = require('../middlewares/authMiddleware');
+const PropostaController = require('../controllers/Proposta');
+const { authenticateToken } = require('../middlewares/auth');
 const { body } = require('express-validator');
 
 // Enviar proposta (Empresa)
