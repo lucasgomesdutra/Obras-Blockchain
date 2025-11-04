@@ -1,6 +1,6 @@
-const Licitacao = require('../models/Licitacao');
-const Proposta = require('../models/Proposta');
-const Documento = require('../models/Documento');
+const Licitacao = require('../models/licitacao.models');
+const Proposta = require('../models/proposta.models');
+const Documento = require('../models/documento.models');
 
 class TransparenciaController {
   async resumo(req, res) {

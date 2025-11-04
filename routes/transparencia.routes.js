@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const TransparenciaController = require('../controllers/Transparencia');
+const TransparenciaController = require('../controllers/transparencia.controller');
 
 // Dados públicos de transparência
 router.get('/', TransparenciaController.resumo);

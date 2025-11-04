@@ -1,6 +1,6 @@
-const Proposta = require('../models/Proposta');
-const Licitacao = require('../models/Licitacao');
-const BlockchainService = require('../services/Blockchain');
+const Proposta = require('../models/proposta.models');
+const Licitacao = require('../models/licitacao.models');
+const BlockchainService = require('../services/blockchain.services');
 
 class PropostaController {
   async enviar(req, res) {

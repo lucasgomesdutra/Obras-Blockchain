@@ -1,7 +1,7 @@
-const Licitacao = require('../models/Licitacao');
-const Proposta = require('../models/Proposta');
-const Documento = require('../models/Documento');
-const Transacao = require('../models/Transacao');
+const Licitacao = require('../models/licitacao.models');
+const Proposta = require('../models/proposta.models');
+const Documento = require('../models/documento.models');
+const Transacao = require('../models/transacao.models');
 const mongoose = require('mongoose');
 
 class DashboardController {

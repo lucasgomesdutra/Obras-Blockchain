@@ -1,4 +1,4 @@
-const BlockchainService = require('../services/Blockchain');
+const BlockchainService = require('../services/blockchain.services');
 
 class BlockchainController {
   async validar(req, res) {

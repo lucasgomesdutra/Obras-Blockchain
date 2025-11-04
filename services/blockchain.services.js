@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const Transacao = require('../models/Transacao');
+const Transacao = require('../models/transacao.models');
 
 class Bloco {
   constructor(index, timestamp, dados, hashAnterior = '') {

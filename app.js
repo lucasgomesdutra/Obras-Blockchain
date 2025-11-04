@@ -22,14 +22,14 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 setupSwagger(app);
 
 // Rotas principais
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/licitacoes', require('./routes/licitacao'));
-app.use('/api/licitacao', require('./routes/licitacao')); // Rota alternativa para detalhes
-app.use('/api/propostas', require('./routes/proposta'));
-app.use('/api/documentos', require('./routes/documento'));
-app.use('/api/blockchain', require('./routes/blockchain'));
-app.use('/api/dashboard', require('./routes/dashboard'));
-app.use('/api/transparencia', require('./routes/transparencia'));
+app.use('/api/auth', require('./routes/auth.routes'));
+app.use('/api/licitacoes', require('./routes/licitacao.routes'));
+app.use('/api/licitacao', require('./routes/licitacao.routes')); // Rota alternativa para detalhes
+app.use('/api/propostas', require('./routes/proposta.routes'));
+app.use('/api/documentos', require('./routes/documento.routes'));
+app.use('/api/blockchain', require('./routes/blockchain.routes'));
+app.use('/api/dashboard', require('./routes/dashboard.routes'));
+app.use('/api/transparencia', require('./routes/transparencia.routes'));
 
 // Rota raiz
 app.get('/', (req, res) => {

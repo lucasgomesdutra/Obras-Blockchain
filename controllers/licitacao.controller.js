@@ -1,7 +1,7 @@
-const Licitacao = require('../models/Licitacao');
-const Proposta = require('../models/Proposta');
-const Documento = require('../models/Documento');
-const BlockchainService = require('../services/Blockchain');
+const Licitacao = require('../models/licitacao.models');
+const Proposta = require('../models/proposta.models');
+const Documento = require('../models/documento.models');
+const BlockchainService = require('../services/blockchain.services');
 
 class LicitacaoController {
   async create(req, res) {
