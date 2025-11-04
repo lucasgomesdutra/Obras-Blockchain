@@ -1,7 +1,7 @@
-const Documento = require('../models/Documento');
+const Documento = require('../models/documento.models');
 const fs = require('fs').promises;
 const crypto = require('crypto');
-const BlockchainService = require('../services/Blockchain');
+const BlockchainService = require('../services/blockchain.services');
 
 class DocumentoController {
   async upload(req, res) {

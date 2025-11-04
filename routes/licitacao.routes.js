@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const LicitacaoController = require('../controllers/Licitacao');
-const { authenticateToken } = require('../middlewares/auth');
+const LicitacaoController = require('../controllers/licitacao.controller');
+const { authenticateToken } = require('../middlewares/auth.middlewares');
 const { body } = require('express-validator');
 
 // Criar licitação (Governo)

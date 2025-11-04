@@ -1,7 +1,7 @@
-const Usuario = require('../models/Usuario');
+const Usuario = require('../models/usuario.models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const BlockchainService = require('../services/Blockchain');
+const BlockchainService = require('../services/blockchain.services');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'hackateen2025_secret_key_temporario_para_teste';
 
