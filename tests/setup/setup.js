@@ -1,5 +1,15 @@
-// Timeout maior para testes de integração
-jest.setTimeout(30000);
+beforeAll(async () => {
+  // Limpar conexões pendentes
+  await mongoose.disconnect();
+  
+  // Aumentar timeout
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
+});
+
+afterAll(async () => {
+  await mongoose.connection.close();
+});
+
 
 // Mock de console para testes mais limpos
 global.console = {

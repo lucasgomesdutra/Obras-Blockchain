@@ -1,64 +1,82 @@
-const Proposta = require('../models/proposta.models');
-const Licitacao = require('../models/licitacao.models');
-const BlockchainService = require('../services/blockchain.services');
+const PropostaService = require('../services/proposta.service');
 
 class PropostaController {
   async enviar(req, res) {
     try {
-      const { licitacao_id, valor_proposta, prazo_execucao, descricao_proposta } = req.body;
-      const licitacao = await Licitacao.findById(licitacao_id);
+      const proposta = await PropostaService.enviarProposta(req.body, req.user.id);
 
-      if (!licitacao || !['publicado', 'aberto'].includes(licitacao.status))
-        return res.status(400).json({ success: false, message: 'Licitação não disponível' });
-
-      if (new Date(licitacao.data_fechamento) <= new Date())
-        return res.status(400).json({ success: false, message: 'Prazo expirado' });
-
-      const propostaExistente = await Proposta.findOne({
-        empresa_id: req.user.id,
-        licitacao_id
+      res.status(201).json({ 
+        success: true, 
+        data: { 
+          id: proposta._id, 
+          hash_blockchain: proposta.hash_blockchain 
+        } 
       });
-      if (propostaExistente)
-        return res.status(400).json({
-          success: false,
-          message: 'Você já enviou uma proposta para esta licitação'
-        });
-
-      const novaProposta = await Proposta.create({
-        licitacao_id,
-        empresa_id: req.user.id,
-        valor_proposta,
-        prazo_execucao,
-        descricao_proposta
-      });
-
-      const hashBlockchain = await BlockchainService.criarTransacao('proposta', req.user.id, {
-        proposta_id: novaProposta._id.toString(),
-        licitacao_id,
-        valor_proposta,
-        prazo_execucao
-      });
-
-      novaProposta.hash_blockchain = hashBlockchain;
-      await novaProposta.save();
-
-      res.status(201).json({ success: true, data: { id: novaProposta._id, hash_blockchain: hashBlockchain } });
     } catch (error) {
       console.error('Erro ao enviar proposta:', error);
-      res.status(500).json({ success: false, message: 'Erro no servidor' });
+      
+      const status = error.message.includes('não disponível') || 
+                     error.message.includes('expirado') ||
+                     error.message.includes('já enviou') ? 400 : 500;
+      
+      res.status(status).json({ success: false, message: error.message });
     }
   }
 
   async listarMinhas(req, res) {
     try {
-      const propostas = await Proposta.find({ empresa_id: req.user.id })
-        .populate('licitacao_id', 'titulo numero_edital status data_fechamento')
-        .sort({ data_envio: -1 });
+      const propostas = await PropostaService.listarMinhasPropostas(req.user.id);
 
       res.json({ success: true, data: propostas });
     } catch (error) {
       console.error('Erro ao listar propostas:', error);
-      res.status(500).json({ success: false, message: 'Erro no servidor' });
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  async listarPorLicitacao(req, res) {
+    try {
+      const propostas = await PropostaService.listarPropostasPorLicitacao(
+        req.params.id,
+        req.user.id
+      );
+
+      res.json({ success: true, data: propostas });
+    } catch (error) {
+      console.error('Erro ao listar propostas:', error);
+      
+      const status = error.message.includes('não encontrada') || 
+                     error.message.includes('permissão') ? 404 : 500;
+      
+      res.status(status).json({ success: false, message: error.message });
+    }
+  }
+
+  async avaliar(req, res) {
+    try {
+      const { proposta, hashBlockchain } = await PropostaService.avaliarProposta(
+        req.params.id,
+        req.user.id,
+        req.body
+      );
+
+      res.json({
+        success: true,
+        data: {
+          id: proposta._id,
+          status: proposta.status,
+          hash_blockchain: hashBlockchain
+        }
+      });
+    } catch (error) {
+      console.error('Erro ao avaliar proposta:', error);
+      
+      let status = 500;
+      if (error.message.includes('não encontrada')) status = 404;
+      if (error.message.includes('permissão')) status = 403;
+      if (error.message.includes('inválido')) status = 400;
+      
+      res.status(status).json({ success: false, message: error.message });
     }
   }
 }

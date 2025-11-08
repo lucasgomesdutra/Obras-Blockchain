@@ -1,3 +1,4 @@
+const { handleValidationErrors } = require('../middlewares/validation.middleware');
 const express = require('express');
 const router = express.Router();
 const BlockchainController = require('../controllers/blockchain.controller');

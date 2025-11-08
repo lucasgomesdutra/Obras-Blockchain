@@ -1,3 +1,4 @@
+const { handleValidationErrors } = require('../middlewares/validation.middleware');
 const express = require('express');
 const router = express.Router();
 const AuthController = require('../controllers/auth.controller');
@@ -12,6 +13,7 @@ router.post(
     body('senha').isLength({ min: 6 }),
     body('tipo_usuario').isIn(['cidadao', 'empresa', 'governo'])
   ],
+  handleValidationErrors,
   AuthController.register
 );
 
@@ -22,6 +24,7 @@ router.post(
     body('usuario').notEmpty(),
     body('senha').notEmpty()
   ],
+  handleValidationErrors,
   AuthController.login
 );
 

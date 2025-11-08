@@ -1,3 +1,4 @@
+const { handleValidationErrors } = require('../middlewares/validation.middleware');
 const express = require('express');
 const router = express.Router();
 const LicitacaoController = require('../controllers/licitacao.controller');
@@ -17,6 +18,7 @@ router.post(
     body('data_abertura').isISO8601(),
     body('data_fechamento').isISO8601()
   ],
+  handleValidationErrors,
   LicitacaoController.create
 );
 
