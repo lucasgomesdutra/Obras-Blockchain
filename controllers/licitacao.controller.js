@@ -1,181 +1,92 @@
-const Licitacao = require('../models/licitacao.models');
-const Proposta = require('../models/proposta.models');
-const Documento = require('../models/documento.models');
-const BlockchainService = require('../services/blockchain.services');
+const LicitacaoService = require('../services/licitacao.service');
 
 class LicitacaoController {
   async create(req, res) {
     try {
-      const {
-        titulo,
-        descricao,
-        objeto_licitacao,
-        modalidade,
-        valor_estimado,
-        data_abertura,
-        data_fechamento,
-        requisitos_tecnicos,
-        criterio_julgamento
-      } = req.body;
-
-      const ano = new Date().getFullYear();
-      const count = await Licitacao.countDocuments();
-      const numeroEdital = `${String(count + 1).padStart(3, '0')}/${ano}`;
-
-      const novaLicitacao = await Licitacao.create({
-        numero_edital: numeroEdital,
-        titulo,
-        descricao,
-        objeto_licitacao,
-        modalidade,
-        valor_estimado,
-        data_abertura,
-        data_fechamento,
-        requisitos_tecnicos,
-        criterio_julgamento,
-        orgao_id: req.user.id
-      });
-
-      const hashBlockchain = await BlockchainService.criarTransacao('licitacao', req.user.id, {
-        licitacao_id: novaLicitacao._id.toString(),
-        numero_edital: numeroEdital,
-        titulo,
-        valor_estimado
-      });
-
-      novaLicitacao.hash_blockchain = hashBlockchain;
-      await novaLicitacao.save();
-
+      const licitacao = await LicitacaoService.criarLicitacao(req.body, req.user.id);
+      
       res.status(201).json({
         success: true,
         data: {
-          id: novaLicitacao._id,
-          numero_edital: numeroEdital,
-          hash_blockchain: hashBlockchain
+          id: licitacao._id,
+          numero_edital: licitacao.numero_edital,
+          hash_blockchain: licitacao.hash_blockchain
         }
       });
     } catch (error) {
       console.error('Erro ao criar licitação:', error);
-      res.status(500).json({ success: false, message: 'Erro no servidor' });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
   async list(req, res) {
     try {
-      const { status, limit = 20, offset = 0 } = req.query;
-      const query = {};
-
-      if (req.user.tipo_usuario === 'governo') {
-        query.orgao_id = req.user.id;
-      } else {
-        query.status = { $in: ['publicado', 'aberto', 'em_analise', 'finalizado'] };
-      }
-
-      if (status) query.status = status;
-
-      const licitacoes = await Licitacao.find(query)
-        .populate('orgao_id', 'usuario')
-        .sort({ data_criacao: -1 })
-        .limit(parseInt(limit))
-        .skip(parseInt(offset));
-
-      const total = await Licitacao.countDocuments(query);
+      const resultado = await LicitacaoService.listarLicitacoes(
+        req.user.id,
+        req.user.tipo_usuario,
+        req.query
+      );
 
       res.json({
         success: true,
-        data: { licitacoes, total, limit: parseInt(limit), offset: parseInt(offset) }
+        data: resultado
       });
     } catch (error) {
       console.error('Erro ao listar licitações:', error);
-      res.status(500).json({ success: false, message: 'Erro no servidor' });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
   async publish(req, res) {
     try {
-      const licitacao = await Licitacao.findOne({
-        _id: req.params.id,
-        orgao_id: req.user.id
-      });
-
-      if (!licitacao)
-        return res.status(404).json({ success: false, message: 'Licitação não encontrada' });
-
-      if (licitacao.status !== 'rascunho')
-        return res.status(400).json({
-          success: false,
-          message: 'Apenas licitações em rascunho podem ser publicadas'
-        });
-
-      licitacao.status = 'publicado';
-      licitacao.data_atualizacao = new Date();
-      await licitacao.save();
-
-      const hashBlockchain = await BlockchainService.criarTransacao('publicacao', req.user.id, {
-        licitacao_id: licitacao._id.toString(),
-        numero_edital: licitacao.numero_edital,
-        status: 'publicado'
-      });
+      const { licitacao, hashBlockchain } = await LicitacaoService.publicarLicitacao(
+        req.params.id,
+        req.user.id
+      );
 
       res.json({
         success: true,
-        data: { id: licitacao._id, status: 'publicado', hash_blockchain: hashBlockchain }
-      });
-    } catch (error) {
-      console.error('Erro ao publicar licitação:', error);
-      res.status(500).json({ success: false, message: 'Erro no servidor' });
-    }
-  }
-
-  // NOVA ROTA: Detalhes completos da licitação para cidadãos
-  async detalhes(req, res) {
-    try {
-      const licitacao = await Licitacao.findById(req.params.id)
-        .populate('orgao_id', 'usuario email');
-
-      if (!licitacao)
-        return res.status(404).json({ success: false, message: 'Licitação não encontrada' });
-
-      // Verificar se é pública
-      if (!['publicado', 'aberto', 'em_analise', 'finalizado'].includes(licitacao.status)) {
-        return res.status(403).json({ 
-          success: false, 
-          message: 'Licitação não disponível para consulta pública' 
-        });
-      }
-
-      // Buscar documentos públicos
-      const documentos = await Documento.find({
-        referencia_id: licitacao._id,
-        publico: true
-      }).select('nome_original tipo_documento hash_arquivo data_upload');
-
-      // Buscar propostas (só mostra se finalizada)
-      let propostas = [];
-      if (licitacao.status === 'finalizado') {
-        propostas = await Proposta.find({ licitacao_id: licitacao._id })
-          .populate('empresa_id', 'empresa.razao_social')
-          .select('valor_proposta prazo_execucao status resultado_analise');
-      }
-
-      // Timeline de eventos
-      const timeline = [
-        { evento: 'Criação', data: licitacao.data_criacao },
-        { evento: 'Publicação', data: licitacao.data_atualizacao }
-      ];
-
-      res.json({
-        success: true,
-        data: {
-          licitacao,
-          documentos,
-          propostas,
-          timeline
+        data: { 
+          id: licitacao._id, 
+          status: 'publicado', 
+          hash_blockchain: hashBlockchain 
         }
       });
     } catch (error) {
+      console.error('Erro ao publicar licitação:', error);
+      
+      if (error.message === 'Licitação não encontrada') {
+        return res.status(404).json({ success: false, message: error.message });
+      }
+      
+      if (error.message.includes('rascunho')) {
+        return res.status(400).json({ success: false, message: error.message });
+      }
+      
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  async detalhes(req, res) {
+    try {
+      const dados = await LicitacaoService.obterDetalhes(req.params.id);
+
+      res.json({
+        success: true,
+        data: dados
+      });
+    } catch (error) {
       console.error('Erro ao buscar detalhes:', error);
-      res.status(500).json({ success: false, message: 'Erro no servidor' });
+      
+      if (error.message === 'Licitação não encontrada') {
+        return res.status(404).json({ success: false, message: error.message });
+      }
+      
+      if (error.message.includes('não disponível')) {
+        return res.status(403).json({ success: false, message: error.message });
+      }
+      
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 }

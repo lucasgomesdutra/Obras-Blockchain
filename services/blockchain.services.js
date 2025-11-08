@@ -36,7 +36,7 @@ class Bloco {
 
 class BlockchainService {
   constructor() {
-    this.dificuldade = 2;
+    this.dificuldade = process.env.NODE_ENV === 'test' ? 1 : 2;
     this.inicializar();
   }
 
