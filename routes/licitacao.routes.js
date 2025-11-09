@@ -2,13 +2,14 @@ const { handleValidationErrors } = require('../middlewares/validation.middleware
 const express = require('express');
 const router = express.Router();
 const LicitacaoController = require('../controllers/licitacao.controller');
-const { authenticateToken } = require('../middlewares/auth.middlewares');
+const { authenticateToken, authorizeGoverno } = require('../middlewares/auth.middlewares');
 const { body } = require('express-validator');
 
-// Criar licitação (Governo)
+// Criar licitação (Governo APENAS)
 router.post(
   '/create',
   authenticateToken,
+  authorizeGoverno,  // Middleware de autorização
   [
     body('titulo').notEmpty(),
     body('descricao').notEmpty(),
@@ -25,10 +26,15 @@ router.post(
 // Listar licitações (todos)
 router.get('/list', authenticateToken, LicitacaoController.list);
 
-// Publicar licitação (Governo)
-router.post('/publish/:id', authenticateToken, LicitacaoController.publish);
+// Publicar licitação (Governo APENAS)
+router.post(
+  '/publish/:id',
+  authenticateToken,
+  authorizeGoverno,  // Garantir que apenas governo publique
+  LicitacaoController.publish
+);
 
-// Detalhes completos da licitação (Público)
+// Detalhes completos da licitação (Público - sem autenticação obrigatória)
 router.get('/:id/detalhes', LicitacaoController.detalhes);
 
 module.exports = router;
