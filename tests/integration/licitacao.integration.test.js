@@ -142,8 +142,8 @@ describe('Licitação Integration Tests', () => {
           objeto_licitacao: 'Teste',
           modalidade: 'pregao',
           valor_estimado: 100000,
-          data_abertura: new Date().toISOString(),
-          data_fechamento: new Date().toISOString()
+          data_abertura: new Date(Date.now() + 86400000).toISOString(),
+          data_fechamento: new Date(Date.now() + 2592000000).toISOString()
         })
         .expect(403);
 

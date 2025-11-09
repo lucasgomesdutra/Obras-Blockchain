@@ -157,12 +157,21 @@ class BlockchainService {
     };
   }
 
+  // Busca de histórico
   async obterHistorico(entidadeId) {
+    // Buscar transações onde:
+    // 1. O usuário é o criador (usuario_id)
+    // 2. A entidade está nos dados (licitacao_id, proposta_id, documento_id)
     const transacoes = await Transacao.find({
       $or: [
         { usuario_id: entidadeId },
+        { 'dados.dados.licitacao_id': entidadeId },
+        { 'dados.dados.proposta_id': entidadeId },
+        { 'dados.dados.documento_id': entidadeId },
+        // Também buscar quando o ID está diretamente nos dados
         { 'dados.licitacao_id': entidadeId },
-        { 'dados.proposta_id': entidadeId }
+        { 'dados.proposta_id': entidadeId },
+        { 'dados.documento_id': entidadeId }
       ]
     }).sort({ index: 1 });
 
