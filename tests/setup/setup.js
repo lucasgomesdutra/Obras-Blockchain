@@ -1,8 +1,10 @@
+const mongoose = require('mongoose'); 
+
 beforeAll(async () => {
   // Limpar conexões pendentes
   await mongoose.disconnect();
   
-  // Aumentar timeout
+  // Timeout
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
 });
 
@@ -10,8 +12,7 @@ afterAll(async () => {
   await mongoose.connection.close();
 });
 
-
-// Mock de console para testes mais limpos
+// Mock de console
 global.console = {
   ...console,
   error: jest.fn(),
@@ -19,7 +20,7 @@ global.console = {
   log: jest.fn()
 };
 
-// Configurar variáveis de ambiente para testes
+// Variáveis para testes
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'test_jwt_secret';
-process.env.PORT = 3001; // Porta diferente para testes
+process.env.PORT = 3001; // Porta para testes
