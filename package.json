@@ -1,20 +1,26 @@
 {
-  "name": "licitacoes-blockchain-simples",
+  "name": "obras-blockchain",
   "version": "1.0.0",
-  "description": "Sistema de Licitações com Blockchain",
+  "description": "Sistema de Licitações Públicas com Blockchain - ETEC Polivalente Americana",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "create-uploads": "mkdir -p uploads",
-    "test": "jest --detectOpenHandles --forceExit",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:unit": "jest tests/unit",
-    "test:integration": "jest tests/integration",
-    "test:e2e": "jest tests/integration/fluxo-completo.integration.test.js",
-    "test:verbose": "jest --verbose",
-    "test:debug": "node --inspect-brk ./node_modules/.bin/jest --runInBand"
+    "create-uploads": "node -e \"require('fs').mkdirSync('uploads', {recursive: true})\"",
+    "test": "NODE_ENV=test jest --detectOpenHandles --forceExit",
+    "test:watch": "NODE_ENV=test jest --watch",
+    "test:coverage": "NODE_ENV=test jest --coverage --detectOpenHandles --forceExit",
+    "test:unit": "NODE_ENV=test jest tests/unit --detectOpenHandles --forceExit",
+    "test:integration": "NODE_ENV=test jest tests/integration --detectOpenHandles --forceExit",
+    "test:e2e": "NODE_ENV=test jest tests/integration/fluxo-completo.integration.test.js --detectOpenHandles --forceExit",
+    "test:verbose": "NODE_ENV=test jest --verbose --detectOpenHandles --forceExit",
+    "test:debug": "NODE_ENV=test node --inspect-brk ./node_modules/.bin/jest --runInBand",
+    "test:auth": "NODE_ENV=test jest tests/integration/auth.integration.test.js --detectOpenHandles --forceExit",
+    "test:licitacao": "NODE_ENV=test jest tests/integration/licitacao.integration.test.js --detectOpenHandles --forceExit",
+    "test:proposta": "NODE_ENV=test jest tests/integration/proposta.integration.test.js --detectOpenHandles --forceExit",
+    "test:blockchain": "NODE_ENV=test jest tests/integration/blockchain.integration.test.js --detectOpenHandles --forceExit",
+    "lint": "echo 'Linting não configurado - considere adicionar ESLint'",
+    "clean": "rm -rf node_modules coverage uploads/*.* && npm install"
   },
   "keywords": [
     "licitacoes",
@@ -22,16 +28,27 @@
     "transparencia",
     "nodejs",
     "express",
-    "mongodb"
+    "mongodb",
+    "hackateen",
+    "governo-digital"
   ],
-  "author": "Sistema Licitações",
+  "author": "Equipe Obras&Blockchain - ETEC Polivalente Americana",
+  "contributors": [
+    "Lucas Gomes Dutra",
+    "Matheus Franco",
+    "Felipe Valentin Brongna",
+    "José de Henrique Almeida"
+  ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "hhttps://github.com/lucasgomesdutra/Obras-Blockchain"
+  },
   "engines": {
     "node": ">=16.0.0",
     "npm": ">=8.0.0"
   },
   "dependencies": {
-    "axios": "^1.12.2",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
@@ -55,6 +72,18 @@
   "jest": {
     "testEnvironment": "node",
     "testTimeout": 30000,
-    "maxWorkers": 1
+    "maxWorkers": 1,
+    "collectCoverageFrom": [
+      "**/*.js",
+      "!node_modules/**",
+      "!coverage/**",
+      "!tests/**",
+      "!jest.config.js"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/tests/",
+      "/coverage/"
+    ]
   }
 }
