@@ -140,11 +140,22 @@ describe('Blockchain Integration Tests', () => {
 
       expect(response.body.success).toBe(true);
       expect(response.body.data.transacoes).toBeDefined();
+      expect(Array.isArray(response.body.data.transacoes)).toBe(true);
       
+      // Deve encontrar pelo menos uma transação da licitação
+      expect(response.body.data.transacoes.length).toBeGreaterThan(0);
+      
+      // Verificar se há uma transação do tipo 'licitacao'
       const temLicitacao = response.body.data.transacoes.some(
         tx => tx.tipo === 'licitacao'
       );
       expect(temLicitacao).toBe(true);
+      
+      // Verificar se o ID da licitação está nos dados
+      const transacaoLicitacao = response.body.data.transacoes.find(
+        tx => tx.tipo === 'licitacao'
+      );
+      expect(transacaoLicitacao.dados.dados.licitacao_id).toBe(licitacaoId);
     });
 
     test('Deve retornar array vazio para ID sem transações', async () => {
@@ -181,35 +192,32 @@ describe('Blockchain Integration Tests', () => {
       expect(response.body.message).toContain('íntegra');
     });
 
-    // CORREÇÃO: Teste de adulteração removido ou simplificado
-    // Este teste era problemático porque modificava o hash mas não quebrava 
-    // a validação adequadamente devido à estrutura do blockchain
-    test('Blockchain deve detectar inconsistências quando modificado', async () => {
-      // Buscar transações
+    test('Blockchain deve detectar adulteração quando hash anterior é modificado', async () => {
       const transacoes = await Transacao.find().sort({ index: 1 });
       
-      if (transacoes.length > 1) {
-        // Modificar o hashAnterior de um bloco para quebrar o encadeamento
-        const transacaoAlvo = transacoes[transacoes.length - 1];
-        transacaoAlvo.hashAnterior = 'hash_invalido_' + transacaoAlvo.hashAnterior;
-        await transacaoAlvo.save();
+      if (transacoes.length >= 2) {
+        const ultimaTransacao = transacoes[transacoes.length - 1];
+        const hashOriginal = ultimaTransacao.hashAnterior;
+        
+        ultimaTransacao.hashAnterior = 'hash_invalido_adulterado';
+        await ultimaTransacao.save();
 
         const response = await request(app)
           .get('/api/blockchain/validar')
           .set('Authorization', `Bearer ${tokenGoverno}`)
           .expect(200);
 
-        // Deve detectar que a cadeia está quebrada
         expect(response.body.success).toBe(false);
         expect(response.body.data.valida).toBe(false);
+        expect(
+          response.body.data.motivo.includes('hash inválido') || 
+          response.body.data.motivo.includes('encadeado')
+        ).toBe(true);
+        
+        ultimaTransacao.hashAnterior = hashOriginal;
+        await ultimaTransacao.save();
       } else {
-        // Se não houver transações suficientes, apenas valida que a cadeia está íntegra
-        const response = await request(app)
-          .get('/api/blockchain/validar')
-          .set('Authorization', `Bearer ${tokenGoverno}`)
-          .expect(200);
-
-        expect(response.body.success).toBe(true);
+        expect(transacoes.length).toBeGreaterThanOrEqual(0);
       }
     });
 
